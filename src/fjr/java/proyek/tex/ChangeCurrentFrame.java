@@ -239,21 +239,7 @@ public class ChangeCurrentFrame extends Application {
 
         return tabel;
     }
-
-    public ObservableList<CurrentFrame> getData() {
-        return FXCollections.observableArrayList(
-                new CurrentFrame(true,
-                        "makan"),
-                new CurrentFrame(false,
-                        "siang"),
-                new CurrentFrame(false,
-                        "jangan"),
-                new CurrentFrame(true,
-                        "suka"),
-                new CurrentFrame(false,
-                        "ribut"));
-    }
-
+    
     public void refresh() {
         if (fileAvailable) {
             tableView.setItems(listFrameLabels);
@@ -264,40 +250,6 @@ public class ChangeCurrentFrame extends Application {
 
     public void convertMapToTableClass() {
         listFrameLabels = FXCollections.observableArrayList(fileHandler.getListFrameLabel());
-    }
-
-    public static class CurrentFrame { // ini harus publik ya.... 
-
-        private BooleanProperty isEnable;
-        private StringProperty framename;
-
-        private CurrentFrame(boolean enable,
-                String name) {
-            this.isEnable = new SimpleBooleanProperty(enable);
-            this.framename = new SimpleStringProperty(name);
-
-            isEnable.addListener((ObservableValue<? extends Boolean> arg0,
-                    Boolean t2, Boolean t1) -> {
-                        System.out.println(nameProperty().get()
-                                + " enable " + t1);
-                    });
-        }
-
-        public void setEnable(boolean state) {
-            isEnable.set(state);
-        }
-
-        public void setName(String name) {
-            this.framename.set(name);
-        }
-
-        public BooleanProperty enableProperty() {
-            return isEnable;
-        }
-
-        public StringProperty nameProperty() {
-            return framename;
-        }
     }
 
     public static void main(String[] args) {
