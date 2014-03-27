@@ -14,6 +14,8 @@ public class FrameLabel {
     String content; 
     String label; 
     
+    int framePosition; 
+    
     private final BooleanProperty compileProperty; 
     
     private final StringProperty labelProperty; 
@@ -23,7 +25,9 @@ public class FrameLabel {
     private final IntegerProperty positionProperty;
     
     boolean haveLabel = false; 
+    
     int labelPositon ;
+    
     public FrameLabel(String content, String label, int labelPositon){
         this.content = content; 
         this.label = label; 
@@ -46,6 +50,13 @@ public class FrameLabel {
         this.labelPositon = labelPositon; 
     }
     
+    public void setFramePosition(int posisi){
+        this.framePosition = posisi; 
+    }
+    
+    public int getFramePosition(){
+        return framePosition; 
+    }
     
     public StringProperty labelProperty(){
         return labelProperty;
@@ -98,5 +109,4 @@ public class FrameLabel {
     public void setLabel(String label){
         this.label = label; 
     }
-    
 }

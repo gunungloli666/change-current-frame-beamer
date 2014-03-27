@@ -46,6 +46,10 @@ public class FileHandler {
 
     String stringHasil = "";
 
+    Pattern framePattern = Pattern.compile("%?\\s*(\\\\begin\\{frame\\})?\\s*\\[.*label\\s*=\\s*(.*)\\]");
+    
+    Pattern labelPattern = Pattern.compile(""); 
+    
     enum ReadType {
 
         USING_BUFFER, USING_FILE_UTILS
@@ -66,7 +70,6 @@ public class FileHandler {
 
     public void randomAcces() throws FileNotFoundException {
         randomAccessFile = new RandomAccessFile(file, "r");
-
     }
 
     public String getLine() throws IOException {
@@ -78,7 +81,7 @@ public class FileHandler {
 //        byte[] b = new byte[10] ; 
 //        String res  = randomAccessFile.read(b); 
         String s = randomAccessFile.readLine();
-//        System.out.println(s); 
+//        System.out.println(labelName); 
 //        System.out.println(randomAccessFile.length()); 
 //        return randomAccessFile.readUTF();
 //        byte[] resul = 
@@ -87,7 +90,6 @@ public class FileHandler {
 
     public void getLineBetweenTag() {
         String hasil = StringUtils.substringBetween("\\begin", "\\end");
-
         System.out.println(hasil);
     }
 
@@ -115,13 +117,11 @@ public class FileHandler {
         listFrameLabel.clear();
         this.mainFile = f;
         System.out.println("FILE OPEN");
-        p = Pattern.compile("\\\\end\\{frame\\}");
-        Pattern secondPAttern = Pattern.compile("\\\\end\\{frame\\}");
         stringHasil = FileUtils.readFileToString(f);
         listResult = (ArrayList<String>) FileUtils.readLines(f, "UTF-8");
         int line = 0;
         int i;
-        Pattern patern1 = Pattern.compile("%?\\s*(\\\\begin\\{frame\\})?\\s*\\[.*label\\s*=\\s*(.*)\\]");
+ 
         Matcher match;
         for (i = 0; i < listResult.size(); i++) {
             String str = listResult.get(i);
@@ -135,7 +135,7 @@ public class FileHandler {
                 do {
                     s = listResult.get(j);
                     builder.append(s);
-                    match = patern1.matcher(s);
+                    match = framePattern.matcher(s);
                     if (match.find()) {
                         labelPosition = j;
                         label = match.group(2);
@@ -144,15 +144,14 @@ public class FileHandler {
                     j++;
                 } while (!s.contains("\\end{frame}"));
                 if (!haveALabel) {
-                    labelPosition = i;
+                    labelPosition = i+1;
                 }
-//                       if (haveALabel) {
                 String result = builder.toString();
                 FrameLabel frameLabel = new FrameLabel(result, label, labelPosition);
                 frameLabel.haveALabel(haveALabel);
-                hashMap.put(i, frameLabel);
+                frameLabel.setFramePosition(i);
+                
                 listFrameLabel.add(frameLabel);
-//                       }
                 i = j + 1;
             }
         }
@@ -162,22 +161,37 @@ public class FileHandler {
         ArrayList<String> listOutout = new ArrayList<>(listResult);
         for (FrameLabel frame : listLabel) {
             int posisi = frame.positionProperty().get();
-            String s = frame.labelProperty().get();
-            listOutout.set(posisi, s);
+            int posisiframe = frame.getFramePosition();
+            boolean havelabel = frame.compileProperty().get();
+            String labelName = frame.labelProperty().get();
+            if (posisi == posisiframe) {
+                String hasil = labelName.replaceAll("\\[\\s*label\\s*=\\s*[A-Za-z\\d]+\\s*\\]", "");
+                if (havelabel) {
+                    listOutout.set(posisi + 1, "[label=current]");
+                }else{
+                    listOutout.set(posisi + 1, "[label=%current]");
+                }
+            } else {
+                listOutout.set(posisi, "[label="+labelName+"]");
+            }
         }
         String file = this.mainFile.getParent().replaceAll("\\\\", "/");
         file = file + "fjr_backup.tex";
         File f = new File(file);
-
         FileUtils.writeLines(f, listResult);
         FileUtils.writeLines(mainFile, listOutout);
-
     }
 
     public ArrayList getListFrameLabel() {
         return listFrameLabel;
     }
 
+    public void reload() throws IOException{
+       if(mainFile != null){
+             read(mainFile);
+       }
+    }
+    
     public HashMap getMap() {
         return hashMap;
     }

@@ -104,6 +104,18 @@ public class ChangeCurrentFrame extends Application {
                 Logger.getLogger(ChangeCurrentFrame.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
+        
+        
+        Button buttonReload = new Button(); 
+        buttonReload.setText("RELOAD");
+        buttonReload.setPrefWidth(80);
+        buttonReload.setOnAction(event-> {
+            try {
+                fileHandler.reload();
+            } catch (IOException ex) {
+                Logger.getLogger(ChangeCurrentFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
 
         boxButton.getChildren().addAll(buttonOpen, buttonSet, buttonClear, buttonSave);
 
@@ -234,9 +246,9 @@ public class ChangeCurrentFrame extends Application {
         stateColumn.prefWidthProperty().bind(tabel.widthProperty().divide(tabel.getColumns().size()));
 
         positionColumn.prefWidthProperty().bind(tabel.widthProperty().divide(tabel.getColumns().size()));
-
+        
         tableView = tabel;
-
+        
         return tabel;
     }
     
