@@ -28,6 +28,8 @@ public class FrameLabel {
     
     int labelPositon ;
     
+    int labelPositionRepresentation; 
+    
     public FrameLabel(String content, String label, int labelPositon){
         this.content = content; 
         this.label = label; 
@@ -48,10 +50,16 @@ public class FrameLabel {
             }
         });
         this.labelPositon = labelPositon; 
+        this.labelPositionRepresentation = labelPositon+1; 
+    }
+    
+    public int getPositionRepresentation(){
+        return labelPositionRepresentation; 
     }
     
     public void setFramePosition(int posisi){
         this.framePosition = posisi; 
+        labelPositionRepresentation= posisi + 1; 
     }
     
     public int getFramePosition(){

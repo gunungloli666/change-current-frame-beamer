@@ -117,7 +117,8 @@ public class ChangeCurrentFrame extends Application {
             }
         });
 
-        boxButton.getChildren().addAll(buttonOpen, buttonSet, buttonClear, buttonSave);
+        boxButton.getChildren().addAll(buttonOpen, buttonSet,
+                buttonClear, buttonSave, buttonReload);
 
         HBox box = new HBox();
         box.setSpacing(10);
@@ -138,11 +139,10 @@ public class ChangeCurrentFrame extends Application {
         chooser.getExtensionFilters().add(filter1);
         chooser.setInitialDirectory(initialDirectory);
         File ff = chooser.showOpenDialog(mainStage);
-
+        
         if (ff != null) {
             fileHandler.read(ff);
             fileAvailable = true;
-
         }
     }
 

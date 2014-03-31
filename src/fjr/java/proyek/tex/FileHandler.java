@@ -1,19 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package fjr.java.proyek.tex;
 
-/**
- *
- * @author fajar
- */
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -21,8 +12,6 @@ import java.util.HashMap;
 
 import java.util.regex.*;
 import javafx.collections.ObservableList;
-
-import jdk.nashorn.internal.runtime.arrays.ArrayLikeIterator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,12 +35,15 @@ public class FileHandler {
 
     String stringHasil = "";
 
-    Pattern framePattern = Pattern.compile("%?\\s*(\\\\begin\\{frame\\})?\\s*\\[.*label\\s*=\\s*(.*)\\]");
+    Pattern framePattern = Pattern.compile("%?\\s*(\\\\begin\\{frame\\})?\\s*\\[.*label\\s*=\\s*([A-Za-z]+)\\]");
+    
+    Pattern second = Pattern.compile("\\s*(\\\\begin\\{frame\\})\\s*"); 
+    
+    Pattern third = Pattern.compile("\\s*(\\\\begin\\{frame\\})\\s*"); 
     
     Pattern labelPattern = Pattern.compile(""); 
     
     enum ReadType {
-
         USING_BUFFER, USING_FILE_UTILS
     }
 
@@ -104,6 +96,7 @@ public class FileHandler {
     }
 
     Pattern p;
+    
     Matcher m;
 
     HashMap<Integer, FrameLabel> hashMap;
@@ -111,48 +104,52 @@ public class FileHandler {
     ArrayList<FrameLabel> listFrameLabel = new ArrayList<>();
 
     ArrayList<String> listOutput = new ArrayList<>();
+    
+    String regexForBeginnginOfFrame = "^\\s*\\\\begin\\{frame\\}\\s*(\\[\\s*label\\s*=\\s*[A-Za-z]+\\s*\\])?\\s*$"; 
+    String regexForEndOfFrame = "^\\s*\\\\end\\{frame\\}\\s*$"; 
 
     public void read(File f) throws FileNotFoundException, IOException {
-        hashMap = new HashMap<>();
         listFrameLabel.clear();
         this.mainFile = f;
-        System.out.println("FILE OPEN");
         stringHasil = FileUtils.readFileToString(f);
         listResult = (ArrayList<String>) FileUtils.readLines(f, "UTF-8");
         int line = 0;
         int i;
- 
         Matcher match;
         for (i = 0; i < listResult.size(); i++) {
             String str = listResult.get(i);
-            if (str.contains("\\begin{frame}")) {
+            if (Pattern.matches(regexForBeginnginOfFrame, str)) {
                 int j = i;
-                String s;
+                String s = "";
                 StringBuilder builder = new StringBuilder();
                 String label = "empty";
                 int labelPosition = 0;
                 boolean haveALabel = false;
-                do {
+                boolean run = true; 
+                while(run && j< listResult.size()){
                     s = listResult.get(j);
-                    builder.append(s);
-                    match = framePattern.matcher(s);
-                    if (match.find()) {
-                        labelPosition = j;
-                        label = match.group(2);
-                        haveALabel = true;
+                    if (!Pattern.matches(regexForEndOfFrame, path)) {
+                        builder.append(s);
+                        match = framePattern.matcher(s);
+                        if (match.find()) {
+                            labelPosition = j;
+                            label = match.group(2);
+                            haveALabel = true;
+                        }
+                        j++; 
+                    } else {
+                       run = false;
                     }
-                    j++;
-                } while (!s.contains("\\end{frame}"));
-                if (!haveALabel) {
+                }
+                if (!haveALabel) { 
                     labelPosition = i+1;
                 }
                 String result = builder.toString();
                 FrameLabel frameLabel = new FrameLabel(result, label, labelPosition);
                 frameLabel.haveALabel(haveALabel);
                 frameLabel.setFramePosition(i);
-                
                 listFrameLabel.add(frameLabel);
-                i = j + 1;
+                i = j;
             }
         }
     }
@@ -167,12 +164,16 @@ public class FileHandler {
             if (posisi == posisiframe) {
                 String hasil = labelName.replaceAll("\\[\\s*label\\s*=\\s*[A-Za-z\\d]+\\s*\\]", "");
                 if (havelabel) {
-                    listOutout.set(posisi + 1, "[label=current]");
-                }else{
-                    listOutout.set(posisi + 1, "[label=%current]");
+                    listOutout.add(posisi + 1, "[label=current]");
+                } else {
+                    listOutout.add(posisi + 1, "%[label=current]");
                 }
             } else {
-                listOutout.set(posisi, "[label="+labelName+"]");
+                if (labelName.equalsIgnoreCase("current")) {
+                    listOutout.set(posisi, "%[label=current]");
+                } else {
+                    listOutout.set(posisi, "[label=current]");
+                }
             }
         }
         String file = this.mainFile.getParent().replaceAll("\\\\", "/");
